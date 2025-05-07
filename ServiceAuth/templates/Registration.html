@@ -136,7 +136,7 @@
 <main id="background">
   <div class="register-form-container">
     <h2>Регистрация в StreamGridLive</h2>
-    <form action="/register" method="post">
+      <form id="registerForm">
       <input type="text" name="nickname" placeholder="Ник" required maxlength="30" />
       <input type="email" name="email" placeholder="Email" required />
       <input type="password" name="password" placeholder="Пароль" required minlength="6" />
@@ -164,5 +164,49 @@
 <footer>
   &copy; 2025 StreamGridLive. Все права защищены.
 </footer>
+<script>
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const nickname = this.nickname.value.trim();
+        const email = this.email.value.trim();
+        const password = this.password.value;
+        const confirmPassword = this.confirm_password.value;
+
+        if (password.length < 8) {
+            alert("Пароль должен содержать минимум 8 символов.");
+            return;
+        }
+        if (password !== confirmPassword) {
+            alert("Пароли не совпадают!");
+            return;
+        }
+
+        const data = {
+            Name: nickname,
+            Email: email,
+            Password: password
+        };
+
+        try {
+            const response = await fetch("/registration", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert(result.message || "Регистрация прошла успешно!");
+                window.location.href = "/login";
+            } else {
+                alert(result.error || "Ошибка регистрации");
+            }
+        } catch (err) {
+            alert("Ошибка сети или сервера");
+            console.error(err);
+        }
+    });
+</script>
 </body>
 </html>

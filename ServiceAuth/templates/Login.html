@@ -143,10 +143,11 @@
 <main id="background">
     <div class="login-form-container">
         <h2>Вход в StreamGridLive</h2>
-        <form action="/login" method="post">
-            <input type="email" name="email" placeholder="Email" required />
-            <input type="password" name="password" placeholder="Пароль" required minlength="6" />
+        <form id="login-form">
+            <input type="email" id="email" placeholder="Email" required />
+            <input type="password" id="password" placeholder="Пароль" required minlength="6" />
             <button type="submit">Войти</button>
+            <div id="error-message" style="color: red; margin-top: 0.5rem;"></div>
         </form>
         <div class="forgot-password"><a href="/recovery">Забыли пароль?</a></div>
         <div class="register-link">
@@ -154,7 +155,6 @@
         </div>
     </div>
 </main>
-<!-- Initialize Vanta.js clouds animation -->
 <script>
     VANTA.CLOUDS({
         el: "#background",
@@ -165,6 +165,32 @@
         minWidth: 200.00,
         speed: 1.0,
         zoom: 0.8
+    });
+
+    document.getElementById("login-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+        const errorDiv = document.getElementById("error-message");
+
+        try {
+            const response = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ email, password })
+            });
+
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else {
+                const result = await response.json();
+                errorDiv.textContent = result.error || "Ошибка авторизации";
+            }
+        } catch (err) {
+            errorDiv.textContent = "Ошибка сети. Попробуйте позже.";
+        }
     });
 </script>
 <footer>
